@@ -1,25 +1,44 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 
 export default function Home() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleWaitlist(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const email = (e.currentTarget.querySelector('input[type="email"]') as HTMLInputElement).value.trim()
+    setError(null)
+
+    if (!email) {
+      setError('Please enter your email address.')
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.')
+      return
+    }
+
     setSubmitting(true)
     try {
+      const existing = await getDocs(query(collection(db, 'waitlist'), where('email', '==', email)))
+      if (!existing.empty) {
+        setError('This email is already on the waitlist.')
+        return
+      }
       await addDoc(collection(db, 'waitlist'), {
         email,
-        createdAt: serverTimestamp(),
+        joinedAt: serverTimestamp(),
       })
+      setSubmitted(true)
     } catch (err) {
       console.error('Waitlist save failed:', err)
+      setError('Something went wrong. Please try again.')
     } finally {
-      setSubmitted(true)
       setSubmitting(false)
     }
   }
@@ -400,23 +419,38 @@ export default function Home() {
         <p>CheckVault is launching soon. Drop your email and we'll notify you the moment it's live.</p>
 
         {!submitted ? (
-          <form className="waitlist-form" onSubmit={handleWaitlist}>
-            <input type="email" className="waitlist-input" placeholder="your@email.com" required />
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ fontSize: '15px', padding: '14px 28px', whiteSpace: 'nowrap' }}
-              disabled={submitting}
-            >
-              {submitting ? 'Saving…' : 'Notify me'}
-            </button>
-          </form>
+          <>
+            <form className="waitlist-form" onSubmit={handleWaitlist}>
+              <input type="email" className="waitlist-input" placeholder="your@email.com" required />
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ fontSize: '15px', padding: '14px 28px', whiteSpace: 'nowrap' }}
+                disabled={submitting}
+              >
+                {submitting ? 'Saving…' : 'Notify me'}
+              </button>
+            </form>
+            {error && (
+              <div className="waitlist-error">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {error}
+              </div>
+            )}
+          </>
         ) : (
           <div className="waitlist-success">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            You're on the list! We'll be in touch.
+            <div className="waitlist-success-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <div className="waitlist-success-title">You're on the list!</div>
+            <div className="waitlist-success-sub">We'll notify you the moment CheckVault launches.</div>
           </div>
         )}
 
