@@ -31,3 +31,6 @@ dist/
 .env.local
 .env.development
 .env.production
+
+build
+build/

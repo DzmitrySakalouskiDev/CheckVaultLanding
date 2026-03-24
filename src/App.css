@@ -989,3 +989,68 @@
   color: #fff;
   border-bottom: none;
 }
+
+/* ══════════════════════════════
+   SUPPORT FORM
+══════════════════════════════ */
+.support-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.support-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.3px;
+}
+
+.support-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.support-input::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+.support-input:focus {
+  border-color: rgba(126,217,87,0.45);
+  box-shadow: 0 0 0 3px rgba(126,217,87,0.08);
+}
+
+.support-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.support-select option {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.support-textarea {
+  resize: vertical;
+  min-height: 140px;
+  line-height: 1.6;
+}
